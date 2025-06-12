@@ -31,7 +31,7 @@ $routes->group('mahasiswa', function($routes) {
 ```
 
 5. Ubah app/config/controller sesuaikan dg tabel
-- File Dosen.php atau DosenController.php
+File Dosen.php atau DosenController.php
   ```
   <?php
 
@@ -134,8 +134,163 @@ class Dosen extends ResourceController
 }
 ```
 
-- File Mahasiswa.php atau MahasiswaController.php
+File Mahasiswa.php atau MahasiswaController.php
+```
+<?php
+
+namespace App\Controllers;
+
+use CodeIgniter\RESTful\ResourceController;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class Mahasiswa extends ResourceController
+{
+      protected $modelName = 'App\Models\MahasiswaModel';
+    protected $format    = 'json';
+    /**
+     * Return an array of resource objects, themselves in array format.
+     *
+     * @return ResponseInterface
+     */
+    public function index()
+    {
+           $data = $this->model
+            ->select('mahasiswa.*, dosen.nama as dosen_wali')
+            ->join('dosen', 'dosen.id = mahasiswa.dosen_wali_id')
+            ->findAll();
+
+        return $this->respond($data);
+    }
+
+    /**
+     * Return the properties of a resource object.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function show($id = null)
+    {
+         $data = $this->model->find($id);
+        if ($data) {
+            return $this->respond($data);
+        }
+        return $this->failNotFound('Mahasiswa tidak ditemukan');
+    }
+
+    /**
+     * Return a new resource object, with default properties.
+     *
+     * @return ResponseInterface
+     */
+    public function new()
+    {
+        //
+    }
+
+    /**
+     * Create a new resource object, from "posted" parameters.
+     *
+     * @return ResponseInterface
+     */
+    public function create()
+    {
+        $input = $this->request->getJSON(true);
+        $this->model->insert($input);
+        return $this->respondCreated($input);
+    }
+
+    /**
+     * Return the editable properties of a resource object.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function edit($id = null)
+    {
+        //
+    }
+
+    /**
+     * Add or update a model resource, from "posted" properties.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function update($id = null)
+    {
+       $input = $this->request->getJSON(true);
+        $this->model->update($id, $input);
+        return $this->respond(['status' => 'updated']);
+    }
+
+    /**
+     * Delete the designated resource object from the model.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function delete($id = null)
+    {
+         $this->model->delete($id);
+        return $this->respondDeleted(['status' => 'deleted']);
+    }
+}
+```
+
 6. Ubah app/config/model sesuaikan dg tabel
+File DosenModel.php
+```
+<?php
+
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class DosenModel extends Model
+{
+    protected $table            = 'dosen';
+    protected $primaryKey       = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = false;
+    protected $protectFields    = true;
+    protected $allowedFields    = [
+        'id',
+        'nama',
+        'nidn',
+        'email',
+        'prodi'
+    ];
+}
+```
+File MahasiswaModel.php
+```
+<?php
+
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class MahasiswaModel extends Model
+{
+    protected $table            = 'mahasiswa';
+    protected $primaryKey       = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = false;
+    protected $protectFields    = true;
+    protected $allowedFields    = [
+        'nama',
+        'nim',
+        'email',
+        'prodi'
+    ];
+}
+```
 
 ## 🛠️ EVALUASI PBF
 ### 1. Clone Repository
