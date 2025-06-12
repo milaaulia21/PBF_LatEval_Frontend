@@ -3,7 +3,138 @@
 2. Rename env jd .env, sesuaikan dg database
 3. Buat database, insert tabel
 4. Ubah folder app/config/routes sesuaikan dg tabel
+```
+   <?php
+
+use CodeIgniter\Router\RouteController;
+
+/**
+ * @var RouteCollection $routes
+ */
+$routes->get('/', 'Home::index');
+
+$routes->group('mahasiswa', function($routes) {
+    $routes->get('/', 'MahasiswaController::index');
+    $routes->get('(:num)', 'MahasiswaController::show/$1');
+    $routes->post('/', 'MahasiswaController::create');
+    $routes->put('(:num)', 'MahasiswaController::update/$1');
+    $routes->delete('(:num)', 'MahasiswaController::delete/$1');
+});
+
+$routes->group('mahasiswa', function($routes) {
+    $routes->get('/', 'DosenController::index');
+    $routes->get('(:num)', 'DosenController::show/$1');
+    $routes->post('/', 'DosenController::create');
+    $routes->put('(:num)', 'DosenController::update/$1');
+    $routes->delete('(:num)', 'DosenController::delete/$1');
+});
+```
+
 5. Ubah app/config/controller sesuaikan dg tabel
+- File Dosen.php atau DosenController.php
+  ```
+  <?php
+
+namespace App\Controllers;
+
+use CodeIgniter\RESTful\ResourceController;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class Dosen extends ResourceController
+{
+       protected $modelName = 'App\Models\DosenModel';
+    protected $format    = 'json';
+    /**
+     * Return an array of resource objects, themselves in array format.
+     *
+     * @return ResponseInterface
+     */
+    public function index()
+    {
+            $data = $this->model->findAll();
+        return $this->respond($data);
+    }
+
+    /**
+     * Return the properties of a resource object.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function show($id = null)
+    {
+          $data = $this->model->find($id);
+        if ($data) {
+            return $this->respond($data);
+        }
+        return $this->failNotFound('Dosen tidak ditemukan');
+    }
+
+    /**
+     * Return a new resource object, with default properties.
+     *
+     * @return ResponseInterface
+     */
+    public function new()
+    {
+        //
+    }
+
+    /**
+     * Create a new resource object, from "posted" parameters.
+     *
+     * @return ResponseInterface
+     */
+    public function create()
+    {
+         $input = $this->request->getJSON(true);
+        $this->model->insert($input);
+        return $this->respondCreated($input);
+    }
+
+    /**
+     * Return the editable properties of a resource object.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function edit($id = null)
+    {
+        //
+    }
+
+    /**
+     * Add or update a model resource, from "posted" properties.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function update($id = null)
+    {
+        $input = $this->request->getJSON(true);
+        $this->model->update($id, $input);
+        return $this->respond(['status' => 'updated']);
+    }
+
+    /**
+     * Delete the designated resource object from the model.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function delete($id = null)
+    {
+        $this->model->delete($id);
+        return $this->respondDeleted(['status' => 'deleted']);
+    }
+}
+```
+
+- File Mahasiswa.php atau MahasiswaController.php
 6. Ubah app/config/model sesuaikan dg tabel
 
 ## 🛠️ EVALUASI PBF
