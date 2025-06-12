@@ -1,65 +1,165 @@
-<<<<<<< HEAD
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## 🔧 1. Inisialisasi Proyek Laravel
+```
+laravel new frontend-laravel
+cd frontend-laravel
+```
+Atau jika menggunakan Composer:
+```
+composer create-project laravel/laravel frontend-laravel
+```
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 📦 2. Install Inertia + React (opsional)
+Jika ingin menggunakan React + Inertia:
+```
+composer require inertiajs/inertia-laravel
+php artisan inertia:middleware
 
-## About Laravel
+npm install @inertiajs/inertia @inertiajs/inertia-react react react-dom
+npm install
+```
+Atau tetap gunakan Blade jika tidak perlu React.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ⚙️ 3. Setup Routing Dasar
+routes/web.php
+```
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\DosenController;
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Route::resource('/mahasiswa', MahasiswaController::class);
+Route::resource('/dosen', DosenController::class);
+```
 
-## Learning Laravel
+## 🧩 4. Buat Controller
+```
+php artisan make:controller DashboardController
+php artisan make:controller MahasiswaController --resource
+php artisan make:controller DosenController --resource
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📝 5. Contoh DashboardController
+```
+namespace App\Http\Controllers;
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+use Illuminate\Http\Request;
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        return view('dashboard');
+    }
+}
+👤 6. CRUD Mahasiswa dan Dosen
+MahasiswaController (cuplikan)
+php
+Copy
+Edit
+use Illuminate\Support\Facades\Http;
 
-## Laravel Sponsors
+public function index()
+{
+    $response = Http::get('http://localhost:8000/api/mahasiswa'); // URL backend CI4
+    $mahasiswa = $response->json();
+    return view('mahasiswa.index', compact('mahasiswa'));
+}
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+public function create()
+{
+    return view('mahasiswa.create');
+}
 
-### Premium Partners
+public function store(Request $request)
+{
+    Http::post('http://localhost:8000/api/mahasiswa', $request->all());
+    return redirect()->route('mahasiswa.index')->with('success', 'Data Mahasiswa Ditambahkan');
+}
+```
+DosenController (sama seperti MahasiswaController, ubah endpoint API-nya)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🖼️ 7. View Mahasiswa (Blade)
+resources/views/mahasiswa/create.blade.php
+```
+@extends('layouts.app')
 
-## Contributing
+@section('content')
+<h2>Tambah Mahasiswa</h2>
+<form action="{{ route('mahasiswa.store') }}" method="POST">
+    @csrf
+    <label>Nama:</label>
+    <input type="text" name="nama" required>
+    
+    <label>NIM:</label>
+    <input type="text" name="nim" required>
+    
+    <label>Alamat:</label>
+    <textarea name="alamat" required></textarea>
+    
+    <button type="submit">Simpan</button>
+</form>
+@endsection
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+resources/views/mahasiswa/index.blade.php
+```
+@extends('layouts.app')
 
-## Code of Conduct
+@section('content')
+<h2>Daftar Mahasiswa</h2>
+<a href="{{ route('mahasiswa.create') }}">Tambah Mahasiswa</a>
+<table>
+    <thead>
+        <tr>
+            <th>Nama</th>
+            <th>NIM</th>
+            <th>Alamat</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($mahasiswa as $mhs)
+        <tr>
+            <td>{{ $mhs['nama'] }}</td>
+            <td>{{ $mhs['nim'] }}</td>
+            <td>{{ $mhs['alamat'] }}</td>
+            <td>
+                <a href="#">Edit</a> |
+                <form method="POST" action="#">
+                    @csrf
+                    @method('DELETE')
+                    <button>Hapus</button>
+                </form>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+@endsection
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 📂 Struktur Folder Views
+```
+resources/views/
+├── layouts/
+│   └── app.blade.php
+├── dashboard.blade.php
+├── mahasiswa/
+│   ├── index.blade.php
+│   └── create.blade.php
+└── dosen/
+    ├── index.blade.php
+    └── create.blade.php
+```
 
-## Security Vulnerabilities
+## 🔗 Koneksi API Backend CI4
+Pastikan backend CI4 aktif dan API dapat diakses dari frontend Laravel. Contoh endpoint:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- GET /api/mahasiswa
 
-## License
+- POST /api/mahasiswa
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# PBF_LatEval_Frontend
->>>>>>> f6c7efc6d6f28d68e766dd237d7e2f9c1ab91acc
+- GET /api/dosen
+
+- POST /api/dosen
