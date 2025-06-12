@@ -1,3 +1,13 @@
+## File Backend
+1. Clone
+2. Rename env jd .env, sesuaikan dg database
+3. Buat database, insert tabel
+4. Ubah folder app/config/routes sesuaikan dg tabel
+5. Ubah app/config/controller sesuaikan dg tabel
+6. Ubah app/config/model sesuaikan dg tabel
+
+
+
 ## 🔧 1. Inisialisasi Proyek Laravel
 ```
 laravel new frontend-laravel
