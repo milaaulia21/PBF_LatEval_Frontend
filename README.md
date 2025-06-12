@@ -6,6 +6,16 @@
 5. Ubah app/config/controller sesuaikan dg tabel
 6. Ubah app/config/model sesuaikan dg tabel
 
+## File Frontend
+1. Buat file di cmd (composer create-project laravel/laravel namaprojek) 
+2. Sesuaikan routes/web.php sesuaikan dg tabel
+3. Buka terminal (php artisan make:controller DosenController)
+4. Buat folder dosen di views
+create. blade. php
+edit. blade. php
+index. blade. php
+5. download bootstrap
+pindah file bootstrap ke folder fe bagian public
 
 
 ## 🔧 1. Inisialisasi Proyek Laravel
